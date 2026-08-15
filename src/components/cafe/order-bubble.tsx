@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleProp, StyleSheet, Text, ViewStyle } from "react-native";
 import Animated, { interpolateColor, useAnimatedStyle, type SharedValue } from "react-native-reanimated";
 
 import type { OrderId } from "../../engine/types";
@@ -7,11 +7,11 @@ import { colors, radii, spacing } from "../../theme";
 
 type OrderBubbleProps = {
   orderId: OrderId;
-  /** 0..1 progress through the patience window, drives green -> yellow -> red. */
   patienceProgress: SharedValue<number>;
+  style?: StyleProp<ViewStyle>;
 };
 
-export function OrderBubble({ orderId, patienceProgress }: OrderBubbleProps) {
+export function OrderBubble({ orderId, patienceProgress, style }: OrderBubbleProps) {
   const animatedStyle = useAnimatedStyle(() => ({
     borderColor: interpolateColor(
       patienceProgress.value,
@@ -21,7 +21,7 @@ export function OrderBubble({ orderId, patienceProgress }: OrderBubbleProps) {
   }));
 
   return (
-    <Animated.View style={[styles.bubble, animatedStyle]}>
+    <Animated.View style={[styles.bubble, style, animatedStyle]}>
       <Text style={styles.letter}>{orderId}</Text>
     </Animated.View>
   );
@@ -29,6 +29,7 @@ export function OrderBubble({ orderId, patienceProgress }: OrderBubbleProps) {
 
 const styles = StyleSheet.create({
   bubble: {
+    position: "absolute",
     width: 48,
     height: 48,
     borderRadius: radii.pill,

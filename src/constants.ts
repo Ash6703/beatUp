@@ -1,14 +1,15 @@
-export const BPM = 80;
-export const BEATS_PER_BAR = 4;
+export const RHYTHM_CONFIG = {
+  bpm: 80,
+  beatsPerBar: 4,
+} as const;
 
-/** ±window around each expected beat time that still counts as a hit. Forgiving on purpose for the POC. */
-export const HIT_WINDOW_MS = 125;
+export const BPM = RHYTHM_CONFIG.bpm;
+export const BEATS_PER_BAR = RHYTHM_CONFIG.beatsPerBar;
 
-/** How long the customer takes to walk to the table / walk out, in ms. */
-export const WALK_DURATION_MS = 1200;
-
-/** How long the success reaction holds before advancing to the next order, in ms. */
-export const SUCCESS_HOLD_MS = 900;
-
-/** Full green -> yellow -> red patience cycle per order, in ms. Balance-only, not locked. */
+/** How long the customer waits before reaching the end of the patience cycle. */
 export const PATIENCE_WINDOW_MS = 18000;
+
+/** Initial individual interval timing thresholds used by the rhythm judge. */
+export const PERFECT_WINDOW_MS = 50;
+export const GREAT_WINDOW_MS = 100;
+export const GOOD_WINDOW_MS = 150;

@@ -1,47 +1,58 @@
 import React from "react";
-import { StyleSheet, View, useWindowDimensions } from "react-native";
-import type { SharedValue } from "react-native-reanimated";
+import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
 
-import type { OrderId } from "../../engine/types";
+import type { PendingCustomer } from "../../engine/order-manager";
 import { colors } from "../../theme";
-import { Customer, type CustomerPhase } from "./customer";
+import { Customer } from "./customer";
 import { Table } from "./table";
 
 type CafeSceneProps = {
-  customerPhase: CustomerPhase;
-  orderId: OrderId;
-  patienceProgress: SharedValue<number>;
+  orders: readonly PendingCustomer[];
 };
 
-/**
- * Multiple tables are visible; the one customer always sits at the first
- * one — no pathing needed yet (beatup.md "Screen layout").
- */
-export function CafeScene({ customerPhase, orderId, patienceProgress }: CafeSceneProps) {
+export function CafeScene({ orders }: CafeSceneProps) {
   const { width, height } = useWindowDimensions();
-  const tableY = height * 0.55;
-  const tablePositions = [width * 0.2, width * 0.5, width * 0.8].map((x) => ({ x, y: tableY }));
-  const seat = tablePositions[0];
+  const tableY = height * 0.56;
+  const tablePositions = [width * 0.2, width * 0.5, width * 0.8].map((x) => ({
+    x,
+    y: tableY,
+  }));
 
   return (
     <View style={styles.scene}>
-      {tablePositions.map((pos, i) => (
-        <Table key={i} x={pos.x} y={pos.y} />
-      ))}
-      <Customer
-        phase={customerPhase}
-        seatX={seat.x}
-        seatY={seat.y - 90}
-        orderId={orderId}
-        patienceProgress={patienceProgress}
-      />
+      <Text style={styles.title}>BEATUP CAFE</Text>
+
+      {tablePositions.map((pos, index) => {
+        const order = orders[index];
+        return (
+          <React.Fragment key={index}>
+            <Table x={pos.x} y={pos.y} />
+            {order && (
+              <Customer
+                customerId={order.customerId}
+                orderId={order.items[0]}
+                seatX={pos.x}
+                seatY={pos.y - 92}
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   scene: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.cafeBackground,
+  },
+  title: {
+    position: "absolute",
+    top: 28,
+    alignSelf: "center",
+    fontSize: 28,
+    fontWeight: "900",
+    color: colors.textDark,
   },
 });
