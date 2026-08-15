@@ -29,8 +29,18 @@ export function useGameAudio(): GameAudio {
   return { click, toms: { 1: tom1, 2: tom2, 3: tom3, 4: tom4 } };
 }
 
-/** Fire-and-forget replay from the start — SFX latency here is a feel concern, not a scoring one. */
-export function playFromStart(player: AudioPlayerHandle): void {
-  player.seekTo(0);
-  player.play();
+/**
+ * Fire-and-forget replay from the start — SFX latency here is a feel
+ * concern, not a scoring one (see beatup.md timing section). Awaits
+ * seekTo and swallows rejections: called repeatedly in a tight loop by the
+ * click track, so an unhandled rejection here (e.g. from overlapping
+ * seek/play calls on the same player) must not propagate as a fatal error.
+ */
+export async function playFromStart(player: AudioPlayerHandle): Promise<void> {
+  try {
+    await player.seekTo(0);
+    player.play();
+  } catch (err) {
+    if (__DEV__) console.warn("playFromStart failed", err);
+  }
 }

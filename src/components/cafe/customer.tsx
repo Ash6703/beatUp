@@ -7,7 +7,7 @@ import type { OrderId } from "../../engine/types";
 import { colors } from "../../theme";
 import { OrderBubble } from "./order-bubble";
 
-export type CustomerPhase = "entering" | "seated" | "success" | "leaving";
+export type CustomerPhase = "idle" | "entering" | "seated" | "success" | "leaving";
 
 type CustomerProps = {
   phase: CustomerPhase;

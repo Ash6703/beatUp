@@ -54,8 +54,17 @@ function makeBlip({ freq, durationMs, decay }) {
 const outDir = path.join(__dirname, "..", "assets", "audio");
 fs.mkdirSync(outDir, { recursive: true });
 
-// Click: short, bright, distinct from the toms.
-writeWav(path.join(outDir, "click.wav"), makeBlip({ freq: 1800, durationMs: 40, decay: 60 }));
+// Click: baked to be exactly one beat long at the level's BPM (see
+// src/constants.ts), so `player.loop = true` alone produces the
+// TICK-tick-tick-tick pattern with zero JS re-triggering — no repeated
+// seekTo/play calls racing on the same native player (see beatup.md /
+// use-click-track.ts for why that mattered).
+const BPM = 80;
+const beatDurationMs = 60000 / BPM;
+const blip = makeBlip({ freq: 1800, durationMs: 40, decay: 60 });
+const clickLoop = new Float32Array(Math.floor((SAMPLE_RATE * beatDurationMs) / 1000));
+clickLoop.set(blip.subarray(0, Math.min(blip.length, clickLoop.length)));
+writeWav(path.join(outDir, "click.wav"), clickLoop);
 
 // Toms: low → high pitch as tom index increases, like a real kit.
 const tomFreqs = { 1: 180, 2: 240, 3: 320, 4: 420 };

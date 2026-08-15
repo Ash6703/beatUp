@@ -21,8 +21,10 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "scheme": "beatup",
     "plugins": [
-      "expo-asset"
+      "expo-asset",
+      "expo-router"
     ]
   }
 }
