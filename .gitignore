@@ -46,7 +46,11 @@ yarn-error.*
 package-lock.json
 
 *.patch
+*.md
 
 /dump
 
 .vscode/
+
+.junie/
+

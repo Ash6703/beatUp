@@ -1,21 +1,26 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { StatusBar, StyleSheet, View } from "react-native";
 
 import { BPM } from "../../constants";
 import { CafeScene } from "../../components/cafe";
-import { Drumkit } from "../../components/drumkit";
+import { Drumkit, DrummerStage } from "../../components/drumkit";
 import { DEMO_ORDERS, ORDER_PATTERNS } from "../../engine/patterns";
-import { OrderManager } from "../../engine/order-manager";
+import { OrderManager, type PendingCustomer } from "../../engine/order-manager";
 import { PatternMatcher } from "../../engine/pattern-matcher";
+import { createRhythmSession } from "../../engine/rhythm-session";
 import { judgeRhythm } from "../../engine/rhythm-judge";
 import type { TomHitEvent } from "../../engine/types";
+import { useBackingTrackAudio } from "../../hooks/use-backing-track-audio";
 import { useClickTrack } from "../../hooks/use-click-track";
-import { useGameAudio, playFromStart } from "../../hooks/use-game-audio";
+import { playTomSfx, useTomSfx } from "../../hooks/use-tom-sfx";
 import { useKeyboardTomInput } from "../../hooks/use-keyboard-tom-input";
 
 export function GameScreen() {
-  const audio = useGameAudio();
-  const [orders, setOrders] = useState(() =>
+  const backingTrack = useBackingTrackAudio();
+  const tomSfx = useTomSfx();
+  const rhythmSession = useMemo(() => createRhythmSession(BPM), []);
+
+  const [orders, setOrders] = useState<readonly PendingCustomer[]>(() =>
     DEMO_ORDERS.map((order) => ({
       customerId: order.customerId,
       items: order.items.map((item) => item.patternId),
@@ -32,31 +37,33 @@ export function GameScreen() {
     orderManagerRef.current = new OrderManager(DEMO_ORDERS);
   }
 
-  useClickTrack(audio.click, true);
+  useClickTrack(backingTrack, true);
 
   const handleHit = useCallback(
     (hit: TomHitEvent) => {
-      void playFromStart(audio.toms[hit.tom]);
+      // SFX playback is completely independent from the backing-track player.
+      void playTomSfx(tomSfx[hit.tom]);
 
       const match = matcherRef.current!.push(hit);
       if (!match) return;
 
-      const rhythm = judgeRhythm(match.hits, BPM);
+      const rhythm = judgeRhythm(match.hits, rhythmSession);
       const served = orderManagerRef.current!.serve(match.patternId);
 
       if (__DEV__) {
-        console.log("[BeatUP]", {
+        console.log("[BeatUP] pattern result", {
           pattern: match.patternId,
-          grade: rhythm.grade,
-          consistency: Math.round(rhythm.consistency),
-          averageErrorMs: Math.round(rhythm.averageErrorMs),
+          beatDurationMs: rhythmSession.beatDurationMs,
+          inputs: rhythm.inputs,
+          totalErrorMs: rhythm.totalErrorMs,
+          quality: rhythm.grade,
           servedCustomer: served?.customerId ?? null,
         });
       }
 
       setOrders(orderManagerRef.current!.getPendingOrders());
     },
-    [audio],
+    [rhythmSession, tomSfx],
   );
 
   useKeyboardTomInput(handleHit);
@@ -65,6 +72,7 @@ export function GameScreen() {
     <View style={styles.root}>
       <StatusBar hidden />
       <CafeScene orders={orders} />
+      <DrummerStage />
       <Drumkit onHit={handleHit} />
     </View>
   );

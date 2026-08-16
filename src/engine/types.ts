@@ -12,22 +12,23 @@ export type TomHitEvent = {
 
 export type RhythmGrade = "perfect" | "great" | "good" | "miss";
 
-export type RhythmIntervalResult = {
-  actualMs: number;
-  expectedMs: number;
-  errorMs: number;
-  grade: RhythmGrade;
+export type RhythmSession = {
+  readonly bpm: number;
+  /** Calculated once when the game session starts; reused for every input. */
+  readonly beatDurationMs: number;
 };
 
 export type RhythmResult = {
-  /** One result for each gap between successive toms in the matched pattern. */
-  intervals: readonly RhythmIntervalResult[];
-  /** 0..100 measure of how evenly spaced the intervals were. */
-  consistency: number;
-  /** Average absolute interval error against the BPM-derived beat duration. */
-  averageErrorMs: number;
-  /** Overall interval grade; consistency is reported separately. */
-  grade: RhythmGrade;
+  /** Each matched input measured from the first input of this pattern. */
+  readonly inputs: readonly {
+    timestamp: number;
+    relativeMs: number;
+    expectedMs: number;
+    errorMs: number;
+  }[];
+  /** Sum of every cumulative timing error. The first input contributes zero. */
+  readonly totalErrorMs: number;
+  readonly grade: RhythmGrade;
 };
 
 export type OrderItem = {

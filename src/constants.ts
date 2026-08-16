@@ -1,5 +1,5 @@
 export const RHYTHM_CONFIG = {
-  bpm: 80,
+  bpm: 60,
   beatsPerBar: 4,
 } as const;
 

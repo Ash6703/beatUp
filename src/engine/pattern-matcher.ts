@@ -33,7 +33,10 @@ export class PatternMatcher {
     const completed = this.findCompletedPattern();
     if (completed) {
       const match = completed;
-      this.buffer = this.longestPrefixSuffix();
+      // Consume the entire completed pattern. Do not carry a suffix into the
+      // next pattern, otherwise 1 2 3 4 3 2 1 can incorrectly become A + B.
+      // A real A+B sequence must explicitly provide the next B prefix: 4 3 2 1.
+      this.buffer = [];
       return match;
     }
 
