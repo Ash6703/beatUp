@@ -23,18 +23,11 @@ Get this feeling fun before anything else gets built.
 - Stack: **Expo / React Native.**
 - **How timing actually works here (read before building):** this game
   does *not* have the hard "sync gameplay to a recorded song" problem
-  that most rhythm games have. The backing track is a fixed-tempo click
-  (TICK tick tick tick, one bar of 4/4 at 80 BPM) — not charted music —
-  so the entire beat grid can be **computed from a timestamp, not read
-  off audio playback position**:
+  that most rhythm games have. The backing track is a fixed-tempo backing track — not charted music — and gameplay timing is
+  judged from the player's own first input, not from audio playback position:
 
   ```
-  beat_n_time = session_start_time + n * (60 / bpm)
-  ```
-
-  Do a one-time calibration/clock-anchor when the level starts, then
-  every future beat time is just math from that anchor. This is simpler
-  and more reliable than trying to read "where the song currently is."
+  pattern_expected_time_n = first_input_time + n * (60000 / bpm)
 
 - **What actually needs to be accurate is input timestamps, not SFX
   playback.** Judging a hit only needs: *when did the tap happen* vs.
@@ -98,7 +91,7 @@ Full landscape screen, divided into two zones:
    art will be food icons later, not needed now).
 3. The bubble's order defines a **beat pattern** the player must play.
 4. Background metronome/track is playing continuously at **80 BPM, 4/4**,
-   one bar loops.
+   one full backing-track file loops.
 5. Player taps toms 1–4 in time with the beat to match the pattern within
    that bar (or across however many bars is comfortable to react in —
    see "Timing" below).
