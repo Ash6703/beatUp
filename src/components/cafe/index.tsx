@@ -1,8 +1,9 @@
 import React from "react";
-import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import { StyleSheet, View, useWindowDimensions } from "react-native";
 
 import type { PendingCustomer } from "../../engine/order-manager";
 import { colors } from "../../theme";
+import { CafeBanner } from "./banner";
 import { Customer } from "./customer";
 import { Table } from "./table";
 
@@ -12,16 +13,24 @@ type CafeSceneProps = {
 
 export function CafeScene({ orders }: CafeSceneProps) {
   const { width, height } = useWindowDimensions();
-  const tableY = height * 0.56;
-  const tablePositions = [width * 0.2, width * 0.5, width * 0.8].map((x) => ({
-    x,
-    y: tableY,
-  }));
+
+  // 4 Tables: 2 Upper row (Top-Mid, Top-Right) and 2 Lower row (Bottom-Mid, Bottom-Right)
+  const tablePositions = [
+    { x: width * 0.44, y: height * 0.28 },
+    { x: width * 0.74, y: height * 0.28 },
+    { x: width * 0.44, y: height * 0.58 },
+    { x: width * 0.74, y: height * 0.58 },
+  ];
 
   return (
     <View style={styles.scene}>
-      <Text style={styles.title}>BEATUP CAFE</Text>
+      {/* Hanging Outdoor-style Restaurant Sign / Banner */}
+      <CafeBanner />
 
+      {/* Decorative cafe floor lines / background ambiance */}
+      <View style={styles.wallBaseboard} />
+
+      {/* 4 Tables and Seated Customers */}
       {tablePositions.map((pos, index) => {
         const order = orders[index];
         return (
@@ -31,8 +40,8 @@ export function CafeScene({ orders }: CafeSceneProps) {
               <Customer
                 customerId={order.customerId}
                 orderId={order.items[0]}
-                seatX={pos.x}
-                seatY={pos.y - 92}
+                seatX={pos.x + 50}
+                seatY={pos.y - 60}
               />
             )}
           </React.Fragment>
@@ -47,12 +56,14 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.cafeBackground,
   },
-  title: {
+  wallBaseboard: {
     position: "absolute",
-    top: 28,
-    alignSelf: "center",
-    fontSize: 28,
-    fontWeight: "900",
-    color: colors.textDark,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 120,
+    backgroundColor: "rgba(184, 131, 74, 0.08)",
+    borderTopWidth: 2,
+    borderTopColor: "rgba(184, 131, 74, 0.2)",
   },
 });

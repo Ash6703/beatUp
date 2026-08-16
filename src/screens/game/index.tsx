@@ -3,7 +3,7 @@ import { StatusBar, StyleSheet, View } from "react-native";
 
 import { BPM } from "../../constants";
 import { CafeScene } from "../../components/cafe";
-import { Drumkit } from "../../components/drumkit";
+import { Drumkit, DrummerStage } from "../../components/drumkit";
 import { DEMO_ORDERS, ORDER_PATTERNS } from "../../engine/patterns";
 import { OrderManager, type PendingCustomer } from "../../engine/order-manager";
 import { PatternMatcher } from "../../engine/pattern-matcher";
@@ -72,6 +72,7 @@ export function GameScreen() {
     <View style={styles.root}>
       <StatusBar hidden />
       <CafeScene orders={orders} />
+      <DrummerStage />
       <Drumkit onHit={handleHit} />
     </View>
   );
