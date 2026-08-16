@@ -5,7 +5,7 @@ import { BPM } from "../../constants";
 import { CafeScene } from "../../components/cafe";
 import { Drumkit } from "../../components/drumkit";
 import { DEMO_ORDERS, ORDER_PATTERNS } from "../../engine/patterns";
-import { OrderManager } from "../../engine/order-manager";
+import { OrderManager, type PendingCustomer } from "../../engine/order-manager";
 import { PatternMatcher } from "../../engine/pattern-matcher";
 import { createRhythmSession } from "../../engine/rhythm-session";
 import { judgeRhythm } from "../../engine/rhythm-judge";
@@ -20,7 +20,7 @@ export function GameScreen() {
   const tomSfx = useTomSfx();
   const rhythmSession = useMemo(() => createRhythmSession(BPM), []);
 
-  const [orders, setOrders] = useState(() =>
+  const [orders, setOrders] = useState<readonly PendingCustomer[]>(() =>
     DEMO_ORDERS.map((order) => ({
       customerId: order.customerId,
       items: order.items.map((item) => item.patternId),
